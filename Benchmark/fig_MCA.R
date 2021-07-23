@@ -9,8 +9,8 @@ sc.legends <- c('Tasic, mouse Neocortex',
                 'Hochgerner, mouse DGH',
                 'Mizrak, mouse V-SVZ')
 
-path.res <- '/home/zy/scRef/Benchmark/mouse_brain/'
-path.fig <- '/home/zy/scRef/figure/MCA/'
+path.res <- '/mdshare/node9/zy/scRef/Benchmark/mouse_brain/'
+path.fig <- '/mdshare/node9/zy/scRef/figure/MCA/'
 if (!file.exists(path.fig)) {
     dir.create(path.fig)
 }
@@ -89,8 +89,8 @@ plot.heatmap <-
         colors = colorRampPalette(c(rev(brewer.pal(n = 9, name =  "RdYlBu"))[1:8], 'firebrick'))(100)) + 
     scale_y_discrete(position = 'right') + 
     labs(x = '', y = '', fill = '') +
-    geom_text(aes(label = round(Accuracy, 3), color = Color_Type), 
-              family = "Arial", size = 3.0) +
+    geom_text(aes(label = round(Accuracy, 2), color = Color_Type), 
+              family = "Arial", size = 3.8) +
     scale_color_manual(breaks = c('0', '1', '2'), 
                        values = c('transparent', 'white', 'black')) +
     theme(panel.background = element_rect(color = 'transparent',
@@ -110,7 +110,7 @@ plot.heatmap <-
 
 ggsave(filename = 'heatmap_MCA.png', 
        path = path.fig, plot = plot.heatmap,
-       units = 'cm', height = 14, width = 16)
+       units = 'cm', height = 15, width = 16)
 
 # boxplot
 df.box <- df.plot
@@ -120,24 +120,27 @@ plot.box <-
     geom_boxplot(width = 0.7, outlier.size = 1) +
     scale_color_manual(breaks = c('Accuracy', 'Balanced Accuracy'),
                        values = c("#1F78B4", "#EE7700")) +
+    scale_y_continuous(breaks = c(0, 0.5, 1)) +
     coord_flip() + 
     labs(title = "", y = 'Accuracy / Balanced Accuracy', x = '', color = '', fill = '') + 
     theme_bw() + 
-    theme(panel.background = element_rect(color = 'black', size = 1.5,
+    theme(panel.background = element_rect(color = 'black', size = 1,
                                           fill = 'transparent'),
-          axis.text.y = element_blank(), 
-          panel.grid.minor = element_blank(), 
-          panel.grid.major.x = element_blank(), 
-          panel.grid.major.y = element_line(color = 'lightgray', 
+          axis.text.y = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          panel.grid.major.y = element_line(color = 'lightgray',
                                             size = 0.15, linetype = 'dashed'),
           legend.position = 'bottom',
-          axis.text.x = element_text(size = 12, color = 'black', family = 'Arial'),
-          axis.title = element_text(size = 12, family = 'Arial'),
-          legend.text = element_text(size = 12, family = 'Arial'),
-          legend.key = element_blank())
+          axis.text.x = element_text(size = 9, color = 'black', family = 'Arial'),
+          axis.title = element_text(size = 10, family = 'Arial'),
+          legend.text = element_text(size = 9, family = 'Arial'),
+          # legend.key.size = unit(1, 'cm'),
+          legend.key = element_blank()) +
+    guides(color = guide_legend(ncol = 1))
 ggsave(filename = 'boxplot_MCA.png', 
        path = path.fig, plot = plot.box,
-       units = 'cm', height = 11, width = 10)
+       units = 'cm', height = 10.5, width = 5.5)
 
 # labeled
 # Accuracy
@@ -191,7 +194,8 @@ vec.metrics <- c(rep('Accuracy', 50), rep('Balanced Accuracy', 50))
 df.plot$Type <- factor(vec.metrics, levels = c('Accuracy', 'Balanced Accuracy'))
 df.mean <- df.plot[df.plot$Dataset == 'Mean Accuracy', ]
 df.plot$Method <- factor(df.plot$Method, 
-                         levels = sort.methods)
+                         levels = df.mean$Method[order(df.mean$Accuracy, decreasing = F)])
+sort.methods <- df.mean$Method[order(df.mean$Accuracy, decreasing = F)]
 color_type <- rep('0', nrow(df.plot))
 color_type[(df.plot$Dataset %in% c('Mean Accuracy', 'Mean Balanced Accuracy')) & 
                (df.plot$Accuracy < 0.1)] <- '1'
@@ -209,8 +213,8 @@ plot.heatmap <-
         colors = colorRampPalette(c(rev(brewer.pal(n = 9, name =  "RdYlBu"))[1:8], 'firebrick'))(100)) + 
     scale_y_discrete(position = 'right') + 
     labs(x = '', y = '', fill = '') +
-    geom_text(aes(label = round(Accuracy, 3), color = Color_Type), 
-              family = "Arial", size = 3.0) +
+    geom_text(aes(label = round(Accuracy, 2), color = Color_Type), 
+              family = "Arial", size = 3.8) +
     scale_color_manual(breaks = c('0', '1', '2'), 
                        values = c('transparent', 'white', 'black')) +
     theme(panel.background = element_rect(color = 'transparent',
@@ -230,7 +234,7 @@ plot.heatmap <-
 
 ggsave(filename = 'heatmap_MCA_labeled.png', 
        path = path.fig, plot = plot.heatmap,
-       units = 'cm', height = 14, width = 16)
+       units = 'cm', height = 15, width = 16)
 
 
 # boxplot
@@ -260,21 +264,23 @@ plot.box <-
     coord_flip() + 
     labs(title = "", y = 'log(Ratio of unassigned cells)', x = '') + 
     theme_bw() + 
-    theme(panel.background = element_rect(color = 'black', size = 1.5,
+    theme(panel.background = element_rect(color = 'black', size = 1,
                                           fill = 'transparent'),
-          axis.text.y = element_blank(), 
-          panel.grid.minor = element_blank(), 
-          panel.grid.major.x = element_blank(), 
-          panel.grid.major.y = element_line(color = 'lightgray', 
+          axis.text.y = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          panel.grid.major.y = element_line(color = 'lightgray',
                                             size = 0.15, linetype = 'dashed'),
           legend.position = 'bottom',
-          axis.text.x = element_text(size = 12, color = 'black', family = 'Arial'),
-          axis.title = element_text(size = 12, family = 'Arial'),
-          legend.text = element_text(size = 12, family = 'Arial'),
-          legend.key = element_blank())
+          axis.text.x = element_text(size = 9, color = 'black', family = 'Arial'),
+          axis.title = element_text(size = 10, family = 'Arial'),
+          legend.text = element_text(size = 9, family = 'Arial'),
+          # legend.key.size = unit(1, 'cm'),
+          legend.key = element_blank()) +
+    guides(color = guide_legend(ncol = 1))
 ggsave(filename = 'boxplot_MCA_labeled.png', 
        path = path.fig, plot = plot.box,
-       units = 'cm', height = 9, width = 8.5)
+       units = 'cm', height = 9.5, width = 5.5)
 
 
 

@@ -1,6 +1,7 @@
 library(ggplot2)
 library(RColorBrewer)
 library(gridExtra)
+library(patchwork)
 
 # heatmap
 plot.heatmap <- function(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref) {
@@ -31,8 +32,13 @@ plot.heatmap <- function(ref.dataset, dataset, true.tags, path.res, path.fig, me
         geom_tile(aes(fill = prop)) + 
         scale_fill_gradient2(low = "#FFF5EE", mid = '#EE7700', high = "#B22222", midpoint = 0.5) + 
         labs(fill = 'Proportion', title = method) + 
-        # geom_text(aes(label = round(prop, 2)), family = "Arial", size = 2.5) +
-        # labs(fill = 'Proportion', title = 'scMAGIC') +
+        scale_y_discrete(breaks = names.ref, 
+                         labels = c('Neuron','Oligodendrocyte','OPC','Microglia',
+                                    'Endothelial Cell','Astrocyte','Unassigned')) + 
+        scale_x_discrete(breaks = names.sc, 
+                         labels = c('Neuron','Oligodendrocyte','OPC','Microglia',
+                                    'Endothelial Cell','Astrocyte', 'Ependymocyte', 
+                                    'VLMC', 'Mural cell', 'Pars tuberalis', 'Tanycyte')) + 
         theme_bw() +
         theme(
             title = element_text(size = 12, color = "black", family = 'Arial'),
@@ -41,18 +47,20 @@ plot.heatmap <- function(ref.dataset, dataset, true.tags, path.res, path.fig, me
             panel.border = element_blank(),
             axis.title = element_blank(),
             plot.title = element_text(hjust = 0.5),
-            axis.text.y = element_text(size = 10, color = "black", family = 'Arial'),
+            axis.text.y = element_text(size = 11, color = "black", family = 'Arial'),
             axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, 
-                                       size = 10, color = "black", family = 'Arial')
+                                       size = 11, color = "black", family = 'Arial'),
+            legend.key.size = unit(0.7, 'cm'),
+            legend.position = 'bottom'
         )
-    ggsave(filename = paste0('heatmap_', ref.dataset, '_', dataset, '_', method, '.png'), 
-           path = path.fig, plot = plot.heatmap,
-           units = 'cm', height = 7.5, width = 15)
+    # ggsave(filename = paste0('heatmap_', ref.dataset, '_', dataset, '_', method, '.png'), 
+    #        path = path.fig, plot = plot.heatmap,
+    #        units = 'cm', height = 7.5, width = 15)
     return(plot.heatmap)
 }
 
-path.res <- '/home/zy/scRef/Benchmark/mouse_brain/'
-path.fig <- '/home/zy/scRef/figure/Tasic/'
+path.res <- '/mdshare/node9/zy/scRef/Benchmark/mouse_brain/'
+path.fig <- '/mdshare/node9/zy/scRef/figure/Tasic_MCA/'
 if (!file.exists(path.fig)) {
     dir.create(path.fig)
 }
@@ -77,17 +85,22 @@ names.sc <- c('Neurons', 'Oligodendrocytes', 'OPC', 'PVMs & Microglia',
 #               'VLMCs','Endothelial cells',  'Mural cells', 'Pars tuberalis', 'Tanycytes')
 
 method <- 'scMAGIC'
-plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
+p.scMAGIC <- plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
 
 method <- 'sciBet'
-plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
+p.sciBet <- plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
 
 method <- 'scPred'
-plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
+p.scPred <- plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
 
 # method <- 'singleCellNet'
 # plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
 
 method <- 'scClassify'
-plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
+p.scClassify <- plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
+
+p.final <- p.scMAGIC + p.sciBet + p.scClassify + p.scPred + plot_layout(guides = 'collect')
+ggsave(filename = paste0('heatmap_', ref.dataset, '_', dataset, '_merge', '.png'),
+       path = path.fig, plot = p.final,
+       units = 'cm', height = 15, width = 26)
 

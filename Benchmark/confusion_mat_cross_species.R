@@ -31,8 +31,16 @@ plot.heatmap <- function(ref.dataset, dataset, true.tags, path.res, path.fig, me
         geom_tile(aes(fill = prop)) + 
         scale_fill_gradient2(low = "#FFF5EE", mid = '#EE7700', high = "#B22222", midpoint = 0.5) + 
         labs(fill = 'Proportion', title = method) + 
-        # geom_text(aes(label = round(prop, 2)), family = "Arial", size = 2.5) +
-        # labs(fill = 'Proportion', title = 'scMAGIC') +
+        scale_y_discrete(breaks = names.ref, 
+                         labels = c('ASC','Alpha cell','Beta cell','Delta cell',
+                                    'Dutal cell','Endothelial Cell','Gamma cell',
+                                    'Macrophage','QSC','Schwann cell',
+                                    'Unassigned', 'T cell', 'B cell')) + 
+        scale_x_discrete(breaks = names.sc, 
+                         labels = c('ASC','Alpha cell','Beta cell','Delta cell',
+                                    'Dutal cell','Endothelial Cell','Gamma cell',
+                                    'Macrophage','QSC','Schwann cell',
+                                    'Acinar cell', 'Epsilon cell', 'Mast cell')) + 
         theme_bw() +
         theme(
             title = element_text(size = 12, color = "black", family = 'Arial'),
@@ -45,14 +53,14 @@ plot.heatmap <- function(ref.dataset, dataset, true.tags, path.res, path.fig, me
             axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, 
                                        size = 10, color = "black", family = 'Arial')
         )
-    ggsave(filename = paste0('heatmap_', ref.dataset, '_', dataset, '_', method, '.png'), 
-           path = path.fig, plot = plot.heatmap,
-           units = 'cm', height = 11, width = 15)
+    # ggsave(filename = paste0('heatmap_', ref.dataset, '_', dataset, '_', method, '.png'), 
+    #        path = path.fig, plot = plot.heatmap,
+    #        units = 'cm', height = 11, width = 15)
     return(plot.heatmap)
 }
 
-path.res <- '/home/zy/scRef/Benchmark/cross_species/'
-path.fig <- '/home/zy/scRef/figure/cross_species/'
+path.res <- '/mdshare/node9/zy/scRef/Benchmark/cross_species/'
+path.fig <- '/mdshare/node9/zy/scRef/figure/cross_species/'
 if (!file.exists(path.fig)) {
     dir.create(path.fig)
 }
@@ -64,23 +72,28 @@ OUT <- readRDS(paste0(path.res, dataset, '.Rdata'))
 label_sc <- OUT$label
 true.tags <- label_sc[,1]
 names.ref <- c('activated_stellate', 'alpha', 'beta', 'delta', 'ductal', 'endothelial',
-               'gamma', 'macrophage', 'quiescent_stellate', 'schwann', 'Unassigned', 'T_cell')
+               'gamma', 'macrophage', 'quiescent_stellate', 'schwann', 'Unassigned', 'T_cell', 'B_cell')
 names.sc <- c('activated_stellate', 'alpha', 'beta', 'delta', 'ductal', 'endothelial',
               'gamma', 'macrophage', 'quiescent_stellate', 'schwann', 
               'acinar', 'epsilon', 'mast')
 
 method <- 'scMAGIC'
-plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
+p.scMAGIC <- plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
 
 method <- 'sciBet'
-plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
+p.sciBet <- plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
 
 method <- 'scPred'
-plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
+p.scPred <- plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
 
 # method <- 'singleCellNet'
 # plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
 
 method <- 'scClassify'
-plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
+p.scClassify <- plot.heatmap(ref.dataset, dataset, true.tags, path.res, path.fig, method, names.sc, names.ref)
+
+p.final <- p.scMAGIC + p.sciBet + p.scClassify + p.scPred + plot_layout(guides = 'collect')
+ggsave(filename = paste0('heatmap_', ref.dataset, '_', dataset, '_merge', '.png'),
+       path = path.fig, plot = p.final,
+       units = 'cm', height = 20, width = 23)
 
