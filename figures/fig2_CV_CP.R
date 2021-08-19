@@ -117,6 +117,7 @@ df.plot.acc <- df.plot.CP
 
 # Balanced accuracy
 df.plot.CP <- data.frame(stringsAsFactors = F)
+CP.datasets <- c()
 for (i in 1:length(ref.dataset)) {
     ref.name <- ref.dataset[i]
     sc.name <- sc.dataset[i]
@@ -134,6 +135,7 @@ for (i in 1:length(ref.dataset)) {
     sub.plot <- data.frame(sub.res[methods, 'value'], row.names = methods)
     # names(sub.plot) <- paste0(ref.GSE, '(', ref.plat, ')', ' -> ', sc.GSE, '(', sc.plat, ')', ', ', tissue)
     names(sub.plot) <- paste0(ref.plat, ' -> ', sc.plat, ', ', tissue)
+    CP.datasets <- c(CP.datasets, paste0(ref.plat, ' -> ', sc.plat, ', ', tissue))
     if (i == 1) {
         df.plot.CP <- sub.plot
     } else {
@@ -190,6 +192,9 @@ df.plot$Dataset[df.plot$Dataset %in% c('Mean Accuracy (Cross validation)',
                                        'Mean Accuracy (Cross platform)')] <- 'Mean Accuracy'
 df.plot$Dataset[df.plot$Dataset %in% c('Mean Balanced Accuracy (Cross validation)',
                                        'Mean Balanced Accuracy (Cross platform)')] <- 'Mean Balanced Accuracy'
+df.plot$Dataset <- factor(df.plot$Dataset, 
+                          levels = c(GSE_ids, CP.datasets,
+                                     'Mean Balanced Accuracy', 'Mean Accuracy'))
 
 plot.heatmap <-
     ggplot(data = df.plot, aes(x = Method, y = Dataset)) +
