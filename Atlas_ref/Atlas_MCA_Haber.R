@@ -19,8 +19,8 @@ label_sc <- label.Duodenum
 library(Seurat)
 library(scMAGIC)
 data("MCA_ref")
-output.scMAGIC <- scMAGIC(exp_sc_mat, MCA_ref, type_ref = 'sum-counts',
-                          use_RUVseq = F, num_threads = 10)
+output.scMAGIC <- scMAGIC_atlas(exp_sc_mat, MCA_ref, type_ref = 'sum-counts',
+                                use_RUVseq = F, num_threads = 10)
 pred.scMAGIC <- output.scMAGIC$scMAGIC.tag
 true.tags <- label_sc[,1]
 table(true.tags, pred.scMAGIC)

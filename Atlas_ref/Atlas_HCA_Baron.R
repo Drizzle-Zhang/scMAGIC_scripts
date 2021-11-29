@@ -12,9 +12,9 @@ dataset <- 'panc8_indrop'
 library(scMAGIC)
 data("HCL_ref")
 time1 <- Sys.time()
-output.scMAGIC <- scMAGIC(exp_sc_mat, HCL_ref, type_ref = 'sum-counts', 
-                          atlas = 'HCL', min_cell = 10,
-                          use_RUVseq = F,  num_threads = 10)
+output.scMAGIC <- scMAGIC_atlas(exp_sc_mat, HCL_ref, type_ref = 'sum-counts', 
+                                atlas = 'HCL', min_cell = 10,
+                                use_RUVseq = F,  num_threads = 10)
 time2 <- Sys.time()
 time.diff <- difftime(time2, time1, units = 'mins')
 pred.scMAGIC <- output.scMAGIC$scMAGIC.tag

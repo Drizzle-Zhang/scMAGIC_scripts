@@ -43,9 +43,9 @@ library(Seurat)
 library(scMAGIC)
 data("MCA_ref")
 time1 <- Sys.time()
-output.scMAGIC <- scMAGIC(exp_sc_mat, MCA_ref,
-                          type_ref = 'sum-counts', use_RUVseq = F,
-                          min_cell = 10, num_threads = 10)
+output.scMAGIC <- scMAGIC_atlas(exp_sc_mat, MCA_ref,
+                                type_ref = 'sum-counts', use_RUVseq = F,
+                                min_cell = 10, num_threads = 10)
 time2 <- Sys.time()
 time.diff <- difftime(time2, time1, units = 'mins')
 pred.scMAGIC <- output.scMAGIC$scMAGIC.tag
